@@ -1,0 +1,420 @@
+# LeetCode
+# 两数之和
+把所有元素存入hash表中，再通过遍历数组，目标值减去数组中的元素与hash表查找，如果有，则返回（边存边遍历）
+
+```
+哈希表
+class Solution {
+    public int[] twoSum(int[] arr, int target){
+        int[] res = new int[2];
+        HashMap map = new HashMap<Integer,Integer>();
+        for (int i = 0; i < arr.length; i++) {
+            if (map.containsKey(arr[i])){
+                res[0] = i;
+                res[1] = (int) map.get(arr[i]);
+                return res;
+            }
+            map.put(target - arr[i],i);//值，下标
+        }
+        return res;
+    }
+}
+
+暴力法
+public int[] twoSum2(int[] arr, int target){
+    int[] res = new int[2];
+    for (int i = 0; i < arr.length; i++) {
+        for (int j = i + 1; j < arr.length; j++) {
+            if (arr[i] + arr[j] == target){
+                res[0] = i;
+                res[0] = j;
+                return res;
+            }
+        }
+    }
+    return res;
+}
+
+```
+# 两个链表相加
+New 一个新链表，注意进位还需要加1
+```
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
+        int sum = 0;
+        int j = 0;
+        int y = 0;
+        ListNode head = new ListNode(0);//头结点
+        ListNode cur = head;//指针
+        while(l1 != null || l2 != null || j != 0){//有多出来的进
+            int v1 = l1 != null ? l1.val : 0;//链表中的值
+            int v2 = l2 != null ? l2.val : 0;
+            sum = v1 + v2 + j;
+            j = sum / 10;
+            y = sum % 10;
+            ListNode node = new ListNode(y);//new 一个节点
+            cur.next = node;//接到头节点里面
+            cur = cur.next;//下一个节点
+            l1 = l1 != null ? l1.next : null;
+            l2 = l2 != null ? l2.next : null;
+        }
+        return head.next;
+    }
+}
+
+```
+
+# 无重复字符的最长子串
+滑动窗口，控制左右指针移动，先右指针后判断是否需要左指针，每一轮右指针循环时更新最长的子串。
+两个while ，一个右一个左，先移动右再移动左，左在右里面移动
+```
+class Solution {
+        public int lengthOfLongestSubstring(String s) {
+        int left = 0;
+        int right = 0;
+        int res = 0;
+        int[] arr = new int[128];//每一个字符对应的编码数字，128之内
+        while (right < s.length()){
+            char c = s.charAt(right);//一开始循环的右指针
+            right++;
+            arr[c]++;
+            while (arr[c] > 1){//如果已经有过这个字符了就从左开始删除，直到删除完
+                char l = s.charAt(left);//窗口往左移，直到
+                left++;
+                arr[l]--;
+            }
+            res = Math.max(res,right - left);//拿到最长的子串
+        }
+        return res;
+    }
+}
+
+```
+
+# 三数之和
+一个外层的for循环，for循环里面用双指针指向循环的开始和结尾处，左指针为i+1i+1，右边为最末位
+当判断 sum == 0 时，分别移动双指针，使其试图找到多个结果，并做去重判断
+大于0 右指针左移
+小于0 左指针右移
+Arrays.sort(int[])// 排序
+
+```java
+class Solution {
+    public List<List<Integer>> threeSum(int[] nums){
+        List res = new ArrayList<List<Integer>>();
+        int len = nums.length;
+        Arrays.sort(nums);
+        if (nums == null || len < 3){
+            return res;
+        }
+        for (int i = 0; i < len; i++) {//最外层for循环，O（N）
+            int left = i + 1;
+            int right = len - 1;
+            int sum;
+            if (nums[i] > 0) break;//如果这个数大于0了，退出
+            if (i > 0 && nums[i - 1] == nums[i]) continue;//for循环的去重
+            while (left < right){//双指针开始
+                sum = nums[i] + nums[left] + nums[right];//和的大小于0
+                if (sum == 0){//分别与0比较
+                    res.add(Arrays.asList(nums[i],nums[left],nums[right]));//加入列表中
+                    while (left < right && nums[right] == nums[right - 1]) right--;//去重
+                    while (left < right && nums[left] == nums[left + 1]) left--;
+                    right--;
+                    left++;
+                }else if (sum > 0) right--;
+                else if (sum < 0)left++;
+            }
+        }
+        return res;
+    }
+}
+
+```
+
+# 爬楼梯
+```
+O（N），O(1)自下而上
+    public int climbStairs(int num){
+        int sum = 0;
+        int a = 1;
+        int b = 2;
+        if(num < 3) return num;
+        for (int i = 3; i <= num; i++) {
+            sum = a + b;
+            a = b;
+            b = sum;
+        }
+        return sum;
+    }
+
+dp数组，自下而上
+        public int climbStairs(int num){
+        int[] dp = new int[num + 1];
+        if (num < 3) return num;
+        dp[1] = 1;
+        dp[2] = 2;
+        for (int i = 3; i < num + 1; i++) {
+            if(dp[i] != 0) return dp[i];
+            dp[i] = dp[i - 1] + dp[i - 2];
+        }
+        return dp[num];
+    }
+```
+
+# k个一组翻转链表
+*### 解题思路*
+翻转链表的思路：
+1、拿到下一个节点的值防止丢失，后面要用
+2、翻转指针
+3、指针右移
+4、取出下一个节点的值，（指针右移）
+
+K个链表思路：
+构造一个头指针，连接原来的头指针
+K个节点，使用for循环走到第k个值，退出循环，指针指向第k个值end
+
+构造一个前驱指针，一个末尾指针
+构造一个头指针，一个下一个k次循环节点的头，防止丢失
+
+隔断每k个链表，末尾为null
+翻转链表
+
+指针为下一次的指向移动
+连接其他组的链表
+前驱指针为上次的末尾指针，也就是start
+Prepre 和 end 指针一起，（下一组由 end 移动找k个节点）
+*### 代码*
+
+```java
+class Solution {
+    public ListNode reverseKGroup(ListNode head, int k){
+        ListNode dummy = new ListNode(0);
+        dummy.next = head;
+
+        ListNode pre = dummy;//前驱
+        ListNode end = dummy;//末尾
+
+        while (end.next != null){
+            for (int i = 0; i < k && end != null; i++) {
+                end = end.next;
+            }//找到第k个
+            if (end == null) break;
+
+            ListNode start = pre.next;//需要翻转的头
+            ListNode tail = end.next;//下个k节点的头
+
+            end.next = null;//开始翻转
+            pre.next = revers(start);//返回的是末尾的节点，接到前驱节点
+
+            start.next = tail;//此时的start在尾部，连接下个k节点的头
+            pre = start;//再次记录前驱节点
+            end = pre;//pre跟end走一起，由end往下走到第k个节点
+        }
+        return dummy.next;
+    }
+    public ListNode revers(ListNode head){
+        ListNode pre = null;
+        ListNode cur = head;
+        while (cur != null){
+            ListNode next = cur.next;//拿到后面的值不然它丢失
+
+            cur.next = pre;//翻转链表
+
+            pre = cur;//指针右移
+
+            cur = next;//指针右移,取后面的值
+        }
+        return pre;
+    }
+}
+```
+
+# 接雨水
+两边的较小值减去该处的值得到该出的雨水量
+
+
+```java
+//暴力法
+public int trap(int[] num){
+    int sum = 0;
+    for (int i = 1; i < num.length - 1; i++) {
+        int left_max = 0; int right_max = 0;//每一次循环都需要初始化
+        for (int j = i; j < num.length; j++) {//向右
+            left_max = Math.max(left_max, num[j]);//左边的最大高度
+        }
+        for (int j = i; j >= 0 ; j--) {//向左
+            right_max = Math.max(right_max, num[j]);//右边的最大高度
+        }//找到两边的最大值后计算雨水
+        sum += Math.min(left_max, right_max) - num[i];//两边的较小值减去该处的值得到该出的雨水量
+    }
+    return sum;
+}
+
+//双指针法
+public int trap3(int[] num){
+    int n = num.length;
+    int sum = 0;
+    int left = 0;
+    int right = n - 1;
+    int left_max = 0;
+    int right_max = 0;
+    while (left < right){
+        if (num[left] < num[right]){//决定权在小的一边
+            if (num[left] >= left_max){
+                left_max = num[left];//单调递增，左边无法储水
+            }else{
+                sum += (left_max - num[left]);
+            }
+            ++left;
+        } else{
+            if (num[right] >= right_max){
+                right_max = num[right];//往左单调递增右边无法储水
+            }else{
+                sum += (right_max - num[right]);
+            }
+            --right;
+        }
+    }
+    return sum;
+}
+
+
+//单调栈
+public int trap4(int[] nums) {
+    Stack<Integer> stack = new Stack<>();
+    int sum = 0;
+    int n = nums.length;
+    for (int i = 0; i < n; i++) {
+        while (!stack.isEmpty() && nums[stack.peek()] <= nums[i]){//构造单调栈，递减
+            int res = stack.pop();//弹出的是第几个数
+            if (!stack.isEmpty()) {
+                //高 * 长  两边的较小值减去该处的值得到该出的雨水量（高），从栈里面弹出的为长
+                sum += (Math.min(nums[i], nums[stack.peek()]) - nums[res]) * (i - stack.peek() - 1);
+            }
+        }
+        stack.push(i);
+    }
+    return sum;
+}
+
+//dp数组
+public int trap2(int[] num){
+    int[][] dp = new int[num.length][2];//定义dp数组
+    int sum = 0;
+    //base case
+    dp[0][0] = num[0];//设为最左边，默认
+    dp[num.length - 1][1] = num[num.length - 1];//假设为最右边
+    for (int j = 1; j < num.length; j++) {//最左最右边的不要
+        dp[j][0] = Math.max(dp[j - 1][0], num[j]);//左
+    }
+    for (int j = num.length - 2; j >= 0; j--) {//最左最右边的不要
+        dp[j][1] = Math.max(dp[j + 1][1], num[j]);//不过dp数组需要包含最左最右
+    }
+    for (int j = 1; j < num.length - 1; j++) {
+        sum += Math.min(dp[j][0], dp[j][1]) - num[j];
+    }
+    return sum;
+}
+
+```
+
+
+# 环形链表及相遇问题
+```java
+public class LinkedCycle {
+    //快慢指针判断是否是环形链表
+    public Node hasCycle(Node head){
+        Node fast = head;
+        Node slow = head;
+        while (fast != null && fast.next != null){//倒数第二个
+            fast = fast.next.next;
+            slow = slow.next;
+            if (fast == slow) return fast;//相遇点 true；
+        }
+        return head;//没有相遇 false；
+    }
+    
+    //找到环的头结点
+    public Node detectCycle(Node head){
+        Node node = hasCycle(head);//相遇的节点
+        Node cur = head;//头结点
+        while (cur != node){//两个指针一起一步步走，一定在环形入口处相遇，步数为：K-W
+            node = node.next;
+            cur = cur.next;
+        }
+        return cur;
+    }
+
+```
+
+# 整数翻转
+```java
+class Solution {
+    public int reverse(int x) {
+        int res = 0;
+        while(x != 0){
+            int tmp = res;//保留翻转前的数字，为后面的判断做准备
+            res = tmp * 10 +  x % 10;//取余
+            x = x / 10;//下次翻转
+            if(tmp != res / 10) return 0;//一旦发现翻转后与翻转前发生不可预知的变化返回0
+        }
+        return res;
+    }
+}
+```
+
+# 最小栈
+必须在构建的时候把最小值拿到手，否则后面计算费时间费空间
+```java
+public class MinStack {
+    LinkedList<Integer> zstack;
+    LinkedList<Integer> fstack;
+    MinStack(){
+        zstack = new LinkedList<>();
+        fstack = new LinkedList<>();
+        fstack.push(Integer.MAX_VALUE);
+    }
+    public void push(int val){
+        zstack.push(val);
+        fstack.push(Math.min(fstack.peek(),val));
+    }
+    public void pop(){
+        zstack.pop();
+        fstack.pop();
+    }
+    public int top(){
+        return zstack.peek();
+    }
+    public int getMin(){
+        return fstack.peek();
+    }
+}
+
+//无需辅助栈
+public void push(int x) {
+        if(min >= x){
+            stack.push(min);//上一次的最小值
+            min = x;
+        }
+        stack.push(x);
+    }
+
+    public void pop() {
+			//弹出，如果弹出的是最小值，继续弹出一次
+        if(stack.pop() == min){            
+				min = stack.pop();//弹出第二次，上次的最小值
+        }
+    }
+
+
+```
