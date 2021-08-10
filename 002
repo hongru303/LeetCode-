@@ -1,0 +1,208 @@
+# LeetCode2
+# 两个栈模拟队列
+```java
+class MyQueue {
+    public Stack<Integer> stack1;
+    public Stack<Integer> stack2;
+
+    /** Initialize your data structure here. */
+    public MyQueue() {
+        stack1 = new Stack<Integer>();
+        stack2 = new Stack<Integer>();
+
+    }
+    
+    /** Push element x to the back of queue. */
+    public void push(int x) {
+//每次插入都需要判断辅助栈是否有元素，如果有，则全部移回主栈再插入
+        while(!stack2.isEmpty()){
+            stack1.push(stack2.pop());
+        }
+        stack1.push(x);
+    }
+    
+    /** Removes the element from in front of queue and returns that element. */
+    public int pop() {
+//每次弹出都需要判断主栈是否有元素，如果有，则全部移到辅助栈再弹出
+        if(stack2.isEmpty()){
+            while(!stack1.isEmpty()){
+                stack2.push(stack1.pop());
+            }
+        }
+        return stack2.pop();
+    }
+    
+    /** Get the front element. */
+    public int peek() {
+        if(stack2.isEmpty()){
+            while(!stack1.isEmpty()){
+                stack2.push(stack1.pop());
+            }
+        }
+        return stack2.peek();
+    }
+    
+    /** Returns whether the queue is empty. */
+    public boolean empty() {
+        return stack1.isEmpty() && stack2.isEmpty();
+    }
+}
+
+
+```
+
+# 链表中倒数第K个节点
+使用快慢指针法
+快指针先走 k 步
+然后快慢指针一起走
+直到快指针为 null ， 得到的慢指针就是倒数第k个节点
+```java
+    public ListNode getKthFromEnd(ListNode head, int k) {
+        ListNode slow = head;
+        ListNode fast = head;
+        while(k-- != 0){
+            fast = fast.next;
+        }
+        while(fast != null){
+            fast = fast.next;
+            slow = slow.next;
+        }
+        return slow;
+    }
+
+```
+
+# 三个数相加的斐波那契数
+```
+class Solution {
+    public int tribonacci(int n) {
+        if(n == 1 || n == 0) return n;
+        if(n == 2) return 1;//边界判断
+        int n0 = 0;
+        int n1 = 1;
+        int n2 = 1;
+        int sum = 0;//变量定义
+        for(int i  = 3; i <= n; i++){
+            sum = n0 + n1 + n2;
+            n0 = n1;//变量整体右移（变大）
+            n1 = n2;
+            n2 = sum;
+        }
+        return sum;
+    }
+}
+
+```
+
+# 删除第k个节点
+当没有或只有一个节点时直接返回 null
+快慢指针找到节点的前驱节点
+slow.next = slow.next.next; 删除节点
+
+```
+class Solution {
+    public ListNode removeNthFromEnd(ListNode head, int n) {
+        if(head == null) return null;
+        if(head.next == null) return null;
+        ListNode slow = head;
+        ListNode fast = head;//快慢指针找节点
+        while(n-- != 0){
+            fast = fast.next;
+        }
+		//必须在这里判断是否为 null， 不然 while 会报错空指针，因为空指针是 null 了
+        if(fast == null) return head.next;
+        while(fast.next != null){
+            fast = fast.next;
+            slow = slow.next;
+        }
+        slow.next = slow.next.next;
+        return head;
+    }
+}
+
+```
+
+# 合并两个有序数组
+逆向思维，从前往后插入需要移位，那么久从后往前插入
+从最后的元素进行判断，较大的先插入，然后与较大的数的数组的下一个元素比较，直到任何一方为0，说明以及插入完毕
+```
+class Solution {
+    public void merge(int[] nums1, int m, int[] nums2, int n) {
+        while(n != 0 && m != 0){//m，n都不为0
+            if(nums2[n - 1] > nums1[m - 1] ){
+                nums1[m + n - 1] = nums2[n - 1];
+                n--;
+            }else{
+                nums1[m + n - 1] = nums1[m - 1];
+                m--;
+            }
+        }
+        while(m == 0 && n-- != 0) nums1[n] = nums2[n];//判断m为0，n不为0的情况，
+    }
+}
+
+```
+
+# 二维数组中的查找
+从右上角开始，大于基准数的一列不要，小于基准数的一行不要，直到找到为止
+```
+public boolean twoArrayFind(int[][] nums, int k){
+    int l = nums[0].length;
+    int h = nums.length;
+    int[] res = new int[2];
+    for (int i = 0; i < h; i++) {
+        while (l >= 1){
+            if (k < nums[i][l -1]) l--;
+            else if(k == nums[i][l - 1]){
+                return true;
+            }else{
+                break;
+            }
+        }
+
+    }
+    return false;
+}
+
+
+```
+
+# 盛最多水的容器
+一个for循环，左右指针，小的指针分别往中间移动，每次求值
+
+```java
+class Solution {
+    //暴力法超出时间限制
+    public int maxArea(int[] height) {
+        int res = 0;
+        int n = height.length;
+        int left = 0;
+        int right = n - 1;
+        for(int i = 0; i < n; i++){
+            while(right > left){
+                res = Math.max(res, Math.min(height[left], height[right]) * Math.abs(right - left));
+                if(height[left] < height[right]) left++;
+                else right--;
+            }
+        }
+        return res;
+    }
+}
+```
+
+# 数组中的第k个最大的不同的数
+从后面开始计数，相同的元素则跳出此处循环，否则k-1，直到k为1
+```
+    public int findKthLargest(int[] nums, int k){
+        int n = nums.length;
+        Arrays.sort(nums);
+        if(k == 1) return nums[n -1];
+        int res = nums[n - 1];
+        while (k != 1 && n != 0){
+            if (nums[n-- - 1] == res) continue;
+            else k--;
+        }
+        return nums[n];
+    }
+
+```
